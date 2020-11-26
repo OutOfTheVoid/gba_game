@@ -1,0 +1,4 @@
+file obj/cart.elf
+b main
+target remote localhost:2345
+c
