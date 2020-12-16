@@ -1,4 +1,9 @@
-.vscode/*
+.vscode
 *.gba
 *.sav
-obj/*
+obj
+png_2_gba/target
+png_2_gba/Cargo.lock
+png_2_gba/test.png
+png_2_gba/player.cpp
+png_2_gba/player.hpp

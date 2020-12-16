@@ -7,14 +7,22 @@
 
 #include "stddef.h"
 
+enum class TileAssetLayout {
+	Native,
+	Visual,
+};
+
 struct tile_pack_4bpp_t {
-	inline tile_pack_4bpp_t(const tile_4bpp_t * tile_list, int tile_count):
+	inline tile_pack_4bpp_t(const tile_4bpp_t * tile_list, int tile_count, TileAssetLayout layout = TileAssetLayout::Native):
 		tile_list(tile_list),
-		tile_count(tile_count) {
+		tile_count(tile_count),
+		layout(layout) {
 	}
 	
 	const tile_4bpp_t * tile_list;
 	int tile_count;
+	TileAssetLayout layout;
+	
 };
 
 struct tile_asset_4bpp_t {
@@ -57,17 +65,49 @@ struct dynamic_tile_asset_4bpp_t {
 		return * this;
 	}
 	
-	inline void copy_tiles(const tile_4bpp_t * source_tiles, int start, int length = -1) {
+	inline void copy_tiles(const tile_4bpp_t * source_tiles, int start, int length = -1, TileAssetLayout layout = TileAssetLayout::Native) {
+		if (layout == TileAssetLayout::Native) {
+			switch (vram_zone)
+			{
+				case VramZone::Background: {
+					for (int i = 0; i < length; i ++) {
+						copy_tile_4bpp(GBA_TILE_BLOCK_4BPP(block_num), tile_offset + start + i, source_tiles[i]);
+					}
+				} break;
+				case VramZone::Sprite: {
+					for (int i = 0; i < length; i ++) {
+						copy_tile_4bpp(GBA_TILE_BLOCK_4BPP(4 + block_num), tile_offset + start + i, source_tiles[i]);
+					}
+				} break;
+			}
+		} else {
+			switch (vram_zone)
+			{
+				case VramZone::Background: {
+					for (int i = 0; i < length; i ++) {
+						copy_tile_4bpp_visual_layout(GBA_TILE_BLOCK_4BPP(block_num), tile_offset + start + i, source_tiles[i]);
+					}
+				} break;
+				case VramZone::Sprite: {
+					for (int i = 0; i < length; i ++) {
+						copy_tile_4bpp_visual_layout(GBA_TILE_BLOCK_4BPP(4 + block_num), tile_offset + start + i, source_tiles[i]);
+					}
+				} break;
+			}
+		}
+	}
+	
+	inline void copy_tiles_visual_layout(const tile_4bpp_t * source_tiles, int start, int length = -1) {
 		switch (vram_zone)
 		{
 			case VramZone::Background: {
 				for (int i = 0; i < length; i ++) {
-					copy_tile_4bpp(GBA_TILE_BLOCK_4BPP(block_num), tile_offset + start + i, source_tiles[i]);
+					copy_tile_4bpp_visual_layout(GBA_TILE_BLOCK_4BPP(block_num), tile_offset + start + i, source_tiles[i]);
 				}
 			} break;
 			case VramZone::Sprite: {
 				for (int i = 0; i < length; i ++) {
-					copy_tile_4bpp(GBA_TILE_BLOCK_4BPP(4 + block_num), tile_offset + start + i, source_tiles[i]);
+					copy_tile_4bpp_visual_layout(GBA_TILE_BLOCK_4BPP(4 + block_num), tile_offset + start + i, source_tiles[i]);
 				}
 			} break;
 		}

@@ -43,18 +43,34 @@ bool TileManager::stage_asset(tile_asset_4bpp_t & asset, VramZone zone) {
 		if (tile_start == -1) {
 			return false;
 		}
-		switch (zone) {
-			case VramZone::Background:
-				for (int i = 0; i < tile_count; i ++) {
-					copy_tile_4bpp(GBA_TILE_BLOCK_4BPP_0, tile_start + i, asset.tile_pack->tile_list[i]);
-				}
-				break;
-			
-			case VramZone::Sprite:
-				for (int i = 0; i < tile_count; i ++) {
-					copy_tile_4bpp(GBA_TILE_BLOCK_4BPP_4, tile_start + i, asset.tile_pack->tile_list[i]);
-				}
-				break;
+		if (asset.tile_pack->layout == TileAssetLayout::Native) {
+			switch (zone) {
+				case VramZone::Background:
+					for (int i = 0; i < tile_count; i ++) {
+						copy_tile_4bpp(GBA_TILE_BLOCK_4BPP_0, tile_start + i, asset.tile_pack->tile_list[i]);
+					}
+					break;
+				
+				case VramZone::Sprite:
+					for (int i = 0; i < tile_count; i ++) {
+						copy_tile_4bpp(GBA_TILE_BLOCK_4BPP_4, tile_start + i, asset.tile_pack->tile_list[i]);
+					}
+					break;
+			}
+		} else {
+			switch (zone) {
+				case VramZone::Background:
+					for (int i = 0; i < tile_count; i ++) {
+						copy_tile_4bpp_visual_layout(GBA_TILE_BLOCK_4BPP_0, tile_start + i, asset.tile_pack->tile_list[i]);
+					}
+					break;
+				
+				case VramZone::Sprite:
+					for (int i = 0; i < tile_count; i ++) {
+						copy_tile_4bpp_visual_layout(GBA_TILE_BLOCK_4BPP_4, tile_start + i, asset.tile_pack->tile_list[i]);
+					}
+					break;
+			}
 		}
 		
 		asset.block_num = tile_start / 512;

@@ -10,7 +10,7 @@ inline static void init_vblank_intr_wait() {
 	set_interrupt_enabled(Interrupt::VBlank, true);
 }
 
-static void vblank_intr_wait() {
+static inline void vblank_intr_wait() {
 	asm volatile("swi 0x05");
 }
 

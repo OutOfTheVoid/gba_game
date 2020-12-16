@@ -1,5 +1,4 @@
 #include "game/test_scene/test.hpp"
-#include "game/test_scene/assets.hpp"
 #include "main.hpp"
 
 #include "gba/keys.hpp"
@@ -9,63 +8,53 @@
 
 #include "gba/color.hpp"
 
-const uint16_t test_dyn_bg_tilepatch_data[] {
-	1,  1,  1,  1,  5,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
-	1,  1,  1,  1,  5,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
-	1,  1,  1,  1,  5,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
-	1,  1,  1,  1,  5,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
-	1,  1,  1,  1,  5,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
-	1,  1,  1,  1,  5,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
-	1,  1,  1,  1,  5,  6,  6,  6,  20, 2,  2,  19, 6,  6,  20, 2,  2,  19, 6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
-	1,  1,  1,  1,  5,  6,  6,  6,  21, 11, 11, 5,  6,  6,  21, 11, 11, 5,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
-	1,  1,  1,  1,  5,  6,  6,  6,  21, 11, 11, 5,  6,  6,  21, 11, 11, 5,  6,  8,  2,  2,  9,  6,  6,  6,  6,  6,
-	1,  1,  1,  1,  5,  6,  6,  6,  16, 18, 18, 17, 6,  6,  16, 18, 18, 17, 6,  7,  14, 15, 5,  6,  6,  6,  6,  6,
-	1,  1,  1,  1,  5,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  7,  12, 13, 5,  6,  6,  6,  6,  6,
-	1,  1,  1,  1,  3,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  4,  10, 10, 3,  2,  2,  2,  2,  2,
-	1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-	1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-	1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+#include "game/assets/bridge.hpp"
+#include "game/assets/boy1.hpp"
+#include "game/assets/cat1.hpp"
+
+int boy_frame = 0;
+int boy_walk_step = 0;
+
+int cat_frame = 0;
+
+enum class WalkDirection: int {
+	Up = 0,
+	UpStopped = 1,
+	Down = 2,
+	DownStopped = 3,
+	Left = 4,
+	LeftStopped = 5,
+	Right = 6,
+	RightStopped = 7,
 };
 
-const bg_tile_patch_t test_dyn_bg_tilepatch {
-	test_dyn_bg_tilepatch_data,
-	28,
-	15
-};
+bool walk_is_stopped(WalkDirection walk_dir) {
+	return (static_cast<int>(walk_dir) & 1) != 0;
+}
 
-const palette_16_t test_dyn_pal_2 {
-	RGB(0,   0,   0),
-	RGB(20,  20,  20),
-	RGB(16,  16,  16),
-	RGB(4,   20,   4),
-	RGB(14,  20,   0),
-	RGB(14,  14,  14),
-	RGB(27,  31,  14),
-	RGB(23,  27,  10),
-	RGB(6,   6,   6),
-};
+WalkDirection stop_walk_direction(WalkDirection walk_dir) {
+	switch (walk_dir) {
+		case WalkDirection::Up: return WalkDirection::UpStopped;
+		case WalkDirection::Down: return WalkDirection::DownStopped;
+		case WalkDirection::Left: return WalkDirection::LeftStopped;
+		case WalkDirection::Right: return WalkDirection::RightStopped;
+		default: break;
+	}
+	return walk_dir;
+}
 
-palette_16_asset_t test_dyn_pal_2_asset(& test_dyn_pal_2);
-
-const bg_area_def_t test_bg_area {
-	& test_bg_palette_asset,
-	& test_dyn_bg_tilepatch,
-	& test_bg_tile_pack	
-};
-
-const bg_area_def_t test_bg_area2 {
-	& test_dyn_pal_2_asset,
-	& test_dyn_bg_tilepatch,
-	& test_bg_tile_pack	
-};
+WalkDirection walk_direction;
 
 TestScene::TestScene():
 	Scene(),
 	player_sprite(),
+	cat_sprite(),
+	camera_pos(),
+	cat_pos(),
 	bg_scene(),
-	walk_area1(Vec2(5, 6), Vec2(23, 113)),
-	walk_area2(Vec2(28, 97), Vec2(1190, 21)),
-	walk_area3(Vec2(165, 92), Vec2(7, 5)),
+	walk_area1(Vec2(-1, 18), Vec2(308, 84)),
+	walk_area2(Vec2(0, 0), Vec2(0, 0)),
+	walk_area3(Vec2(0, 0), Vec2(0, 0)),
 	test_walk_areas {
 		& walk_area1,
 		& walk_area2,
@@ -74,38 +63,37 @@ TestScene::TestScene():
 	test_walk_group(test_walk_areas, 3, 0),
 	player_walk(Vec2(20, 20)) {
 	player_walk.add_area_group(& test_walk_group);
-	bg_scene.add_area(& test_bg_area, IVec2(0, 0), true);
-	bg_scene.add_area(& test_bg_area2, IVec2(-28, 0), true);
+	bg_scene.add_area(& bridge_area_def, IVec2(-1, -10), true);
 }
 
 void TestScene::start(scene_events_t & events) {
-	tile_manager.stage_asset(test_player_tile_asset, VramZone::Sprite);
-	pal_manager.stage_asset(test_player_palette_asset, VramZone::Sprite);
+	// boy 1 assets
+	tile_manager.stage_asset(boy1_tile_asset, VramZone::Sprite);
+	pal_manager.stage_asset(boy1_palette_asset, VramZone::Sprite);
 	
 	update_listener_id = events.update_event.add_listener(& update_listener, (void *) this);
 	
 	player_sprite.set_color_mode(false);
-	player_sprite.set_palette(test_player_palette_asset.pal_num);
-	player_sprite.set_start_tile(test_player_tile_asset.tile_offset);
-	player_sprite.set_size(SpriteSize::Size_8x16);
+	player_sprite.set_palette(boy1_palette_asset.pal_num);
+	player_sprite.set_start_tile(boy1_tile_asset.tile_offset);
+	player_sprite.set_size(SpriteSize::Size_16x32);
 	player_sprite.set_mode(SpriteMode::Regular);
 	player_sprite.set_position(116, 65);
 	sprite_manager.add_sprite(& player_sprite);
 	
+	tile_manager.stage_asset(cat1_tile_asset, VramZone::Sprite);
+	pal_manager.stage_asset(cat1_palette_asset, VramZone::Sprite);
+	
+	cat_sprite.set_color_mode(false);
+	cat_sprite.set_palette(cat1_palette_asset.pal_num);
+	cat_sprite.set_start_tile(cat1_tile_asset.tile_offset);
+	cat_sprite.set_size(SpriteSize::Size_16x16);
+	cat_sprite.set_mode(SpriteMode::Regular);
+	cat_sprite.set_position(80, 80);
+	sprite_manager.add_sprite(& cat_sprite);
+	
 	bg_scene.set_enabled(true);
-	
-	pal_manager.stage_asset(test_bg_palette_asset, VramZone::Background);
-	tile_manager.stage_asset(test_bg_tile_asset, VramZone::Background);
-	tile_manager.stage_asset(test_bg_tilemap_asset, test_bg_tile_asset.tile_offset);
-	
-	GBA_BG0_CONTROL = 
-		GBA_BG_4BPP |
-		GBA_BG_SIZE_REG_64x64 |
-		GBA_BG_PRIORITY_0 |
-		GBA_BG_TILEBLOCK(test_bg_tile_asset.block_num) |
-		GBA_BG_TILEMAP(test_bg_tilemap_asset.start_map_index);
-	GBA_BG0_HOFF = 0;
-	GBA_BG0_VOFF = 0;
+	walk_direction = WalkDirection::DownStopped;
 	
 	GBA_DISPLAY_CONTROL = GBA_DSPCNT_MODE_0 | GBA_DSPCNT_TILE_MAP_1D | GBA_DSPCNT_ENABLE_SPRITE | GBA_DSPCNT_ENABLE_BG0;
 }
@@ -113,17 +101,20 @@ void TestScene::start(scene_events_t & events) {
 void TestScene::stop(scene_events_t & events) {
 	events.update_event.remove_listener(update_listener_id);
 	
-	tile_manager.unstage_asset(test_bg_tile_asset);
-	tile_manager.unstage_asset(test_bg_tilemap_asset);
-	
 	sprite_manager.remove_sprite(& player_sprite);
-	tile_manager.unstage_asset(test_player_tile_asset);
-	pal_manager.unstage_asset(test_player_palette_asset);
+	tile_manager.unstage_asset(boy1_tile_asset);
+	pal_manager.unstage_asset(boy1_palette_asset);
+	
+	sprite_manager.remove_sprite(& cat_sprite);
+	tile_manager.unstage_asset(cat1_tile_asset);
+	pal_manager.unstage_asset(cat1_palette_asset);
 	
 	bg_scene.set_enabled(false);
 }
 
 void TestScene::update() {
+	boy_frame ++;
+	cat_frame ++;
 	Vec2 walk_dir(0, 0);
 	
 	if (key_down(Key::Up)) {
@@ -138,11 +129,99 @@ void TestScene::update() {
 	if (key_down(Key::Left)) {
 		walk_dir.x -= fx16_t(1);
 	}
+	if (boy_frame % 6 < 3) {
+		walk_dir = walk_dir * fx16_t(2);
+	}
 	
 	player_walk.walk(walk_dir);
 	Vec2 player_pos = player_walk.get_position();
-	bg_scene.set_camera_position(Vec2(player_pos.x.int_part() - 120, player_pos.y.int_part() - 80));
+	
+	camera_pos = Vec2(player_pos.x.int_part() - 120, player_pos.y.int_part() - 80);
+	
+	bg_scene.set_camera_position(camera_pos);
 	bg_scene.update();
+	
+	cat_sprite.set_start_tile(cat1_tile_asset.tile_offset + ((cat_frame >> 5) % 3) * 4);
+	cat_sprite.set_position((cat_pos.x - camera_pos.x).int_part(), (cat_pos.y.int_part() - camera_pos.y).int_part());
+	
+	WalkDirection old_walk_direction = walk_direction;
+	if (walk_dir.x != 0 || walk_dir.y != 0) {
+		if (walk_dir.y > 0) {
+			walk_direction = WalkDirection::Down;
+		}
+		if (walk_dir.y < 0) {
+			walk_direction = WalkDirection::Up;
+		}
+		if (walk_dir.x > 0) {
+			walk_direction = WalkDirection::Right;
+		}
+		if (walk_dir.x < 0) {
+			walk_direction = WalkDirection::Left;
+		}
+	} else {
+		walk_direction = stop_walk_direction(walk_direction);
+	}
+	
+	bool was_stopped = walk_is_stopped(old_walk_direction);
+	bool is_stopped = walk_is_stopped(walk_direction);
+	
+	if (was_stopped != is_stopped) {
+		boy_frame -= boy_frame % 5;
+	}
+	
+	if (boy_frame % 5 == 0) {
+		switch (walk_direction) {
+			case WalkDirection::Down: {
+				boy_walk_step ++;
+				boy_walk_step %= 4;
+				const int down_walk_boy_frames[] = {
+					1, 0, 1, 2
+				};
+				player_sprite.set_start_tile(boy1_tile_asset.tile_offset + down_walk_boy_frames[boy_walk_step] * 8);
+			} break;
+			case WalkDirection::DownStopped: {
+				boy_walk_step = 0;
+				player_sprite.set_start_tile(boy1_tile_asset.tile_offset + 8);
+			} break;
+			case WalkDirection::Left: {
+				boy_walk_step ++;
+				boy_walk_step %= 4;
+				const int left_walk_boy_frames[] = {
+					3, 4, 3, 5
+				};
+				player_sprite.set_start_tile(boy1_tile_asset.tile_offset + left_walk_boy_frames[boy_walk_step] * 8);
+			} break;
+			case WalkDirection::LeftStopped: {
+				boy_walk_step = 0;
+				player_sprite.set_start_tile(boy1_tile_asset.tile_offset + 24);
+			} break;
+			case WalkDirection::Right: {
+				boy_walk_step ++;
+				boy_walk_step %= 4;
+				const int right_walk_boy_frames[] = {
+					6, 7, 6, 8
+				};
+				player_sprite.set_start_tile(boy1_tile_asset.tile_offset + right_walk_boy_frames[boy_walk_step] * 8);
+			} break;
+			case WalkDirection::RightStopped: {
+				boy_walk_step = 0;
+				player_sprite.set_start_tile(boy1_tile_asset.tile_offset + 48);
+			} break;
+			case WalkDirection::Up: {
+				boy_walk_step ++;
+				boy_walk_step %= 4;
+				const int down_walk_boy_frames[] = {
+					9, 10, 9, 11
+				};
+				player_sprite.set_start_tile(boy1_tile_asset.tile_offset + down_walk_boy_frames[boy_walk_step] * 8);
+			} break;
+			case WalkDirection::UpStopped: {
+				boy_walk_step = 0;
+				player_sprite.set_start_tile(boy1_tile_asset.tile_offset + 72);
+			} break;
+			default: break;
+		}
+	}
 }
 
 void TestScene::update_listener(void * this_ptr) {

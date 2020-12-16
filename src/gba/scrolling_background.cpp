@@ -1,4 +1,4 @@
-#include "gba/bg_dynamic_scene.hpp"
+#include "gba/scrolling_background.hpp"
 #include "main.hpp"
 
 #define AREA_FLAG_VISIBLE 1
@@ -24,7 +24,7 @@ static const tile_4bpp_t default_tile[] {
 };
 static const tile_pack_4bpp_t default_tile_pack(default_tile, 1);
 
-BgDyanmicScene::BgDyanmicScene(Background bg, uint8_t tile_buffer_size):
+ScrollingBackground::ScrollingBackground(Background bg, uint8_t tile_buffer_size):
 	bg(bg),
 	enabled(false),
 	camera_x(0),
@@ -52,11 +52,11 @@ BgDyanmicScene::BgDyanmicScene(Background bg, uint8_t tile_buffer_size):
 	});
 }
 
-void BgDyanmicScene::set_background(Background bg) {
+void ScrollingBackground::set_background(Background bg) {
 	this -> bg = bg;
 }
 
-void BgDyanmicScene::set_enabled(bool enabled) {
+void ScrollingBackground::set_enabled(bool enabled) {
 	if (enabled && ! this -> enabled) {
 		tile_manager.stage_asset(tile_asset, VramZone::Background);
 		tile_manager.stage_asset(tilemap_asset);
@@ -71,7 +71,7 @@ void BgDyanmicScene::set_enabled(bool enabled) {
 	this -> enabled = enabled;
 }
 
-int32_t BgDyanmicScene::add_area(const bg_area_def_t * area_def, const IVec2 & position, bool visible) {
+int32_t ScrollingBackground::add_area(const bg_area_def_t * area_def, const IVec2 & position, bool visible) {
 	area_record_t new_area;
 	new_area.id = id_counter;
 	id_counter ++;
@@ -87,12 +87,12 @@ int32_t BgDyanmicScene::add_area(const bg_area_def_t * area_def, const IVec2 & p
 	return new_area.id;
 }
 
-void BgDyanmicScene::set_camera_position(const Vec2 & position) {
+void ScrollingBackground::set_camera_position(const Vec2 & position) {
 	camera_x = position.x.int_part();
 	camera_y = position.y.int_part();
 }
 
-void BgDyanmicScene::stage_area_resources(area_record_t & area) {
+void ScrollingBackground::stage_area_resources(area_record_t & area) {
 	if (area.tile_range != -1) {
 		return;
 	}
@@ -100,7 +100,7 @@ void BgDyanmicScene::stage_area_resources(area_record_t & area) {
 	area.tile_range = ref_or_alloc_tiles(area.area_def->tile_pack);
 }
 
-void BgDyanmicScene::unstage_area_resources(area_record_t & area) {
+void ScrollingBackground::unstage_area_resources(area_record_t & area) {
 	if (area.tile_range == -1) {
 		return;
 	}
@@ -110,7 +110,7 @@ void BgDyanmicScene::unstage_area_resources(area_record_t & area) {
 	}
 }
 
-int BgDyanmicScene::ref_or_alloc_tiles(const tile_pack_4bpp_t * tile_pack) {
+int ScrollingBackground::ref_or_alloc_tiles(const tile_pack_4bpp_t * tile_pack) {
 	for (uint32_t r = 0; r < tile_ranges.get_size(); r ++) {
 		if (tile_ranges[r].tile_pack == tile_pack && tile_ranges[r].ref_count != REF_COUNT_FREE) {
 			tile_ranges[r].ref_count ++;
@@ -158,7 +158,7 @@ int BgDyanmicScene::ref_or_alloc_tiles(const tile_pack_4bpp_t * tile_pack) {
 	return -1;
 }
 
-void BgDyanmicScene::free_tiles(uint32_t r) {
+void ScrollingBackground::free_tiles(uint32_t r) {
 	tile_ranges[r].ref_count --;
 	if (tile_ranges[r].ref_count == 0) {
 		bool left_free = 
@@ -179,7 +179,7 @@ void BgDyanmicScene::free_tiles(uint32_t r) {
 	}
 }
 
-void BgDyanmicScene::update() {
+void ScrollingBackground::update() {
 	if (! enabled) {
 		return;
 	}
@@ -278,7 +278,7 @@ void BgDyanmicScene::update() {
 	
 	for (uint32_t i = 0; i < tile_ranges.get_size(); i ++) {
 		if (tile_ranges[i].dirty && tile_ranges[i].ref_count != 0 && tile_ranges[i].ref_count != REF_COUNT_FREE) {
-			tile_asset.copy_tiles(tile_ranges[i].tile_pack->tile_list, tile_ranges[i].low, tile_ranges[i].tile_pack->tile_count);
+			tile_asset.copy_tiles(tile_ranges[i].tile_pack->tile_list, tile_ranges[i].low, tile_ranges[i].tile_pack->tile_count, tile_ranges[i].tile_pack->layout);
 			tile_ranges[i].dirty = false;
 		}
 	}
@@ -316,7 +316,7 @@ void BgDyanmicScene::update() {
 	}
 }
 
-void BgDyanmicScene::write_tilemap_aabb(const IAABB & aabb, IVec2 item_pos, const bg_tile_patch_t * patch, int tile_offset, int palette_offset) {
+void ScrollingBackground::write_tilemap_aabb(const IAABB & aabb, IVec2 item_pos, const bg_tile_patch_t * patch, int tile_offset, int palette_offset) {
 	for (int x = aabb.x_low; x <= aabb.x_high; x ++) {
 		for (int y = aabb.y_low; y <= aabb.y_high; y ++) {
 			int patch_index = x - item_pos.x + (y - item_pos.y) * patch->width;
@@ -325,7 +325,7 @@ void BgDyanmicScene::write_tilemap_aabb(const IAABB & aabb, IVec2 item_pos, cons
 	}
 }
 
-void BgDyanmicScene::write_tilemap(int x, int y, uint16_t entry) {
+void ScrollingBackground::write_tilemap(int x, int y, uint16_t entry) {
 	int local_x = (x + 0x40000000) & 0x3F;
 	int local_y = (y + 0x40000000) & 0x3F;
 	int map_x = local_x >> 5;

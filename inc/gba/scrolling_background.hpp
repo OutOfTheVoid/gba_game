@@ -28,9 +28,9 @@ struct bg_area_def_t {
 // 	uint32_t dirty_bitfield;
 // };
 
-class BgDyanmicScene {
+class ScrollingBackground {
 public:
-	BgDyanmicScene(Background bg = Background::Bg0, uint8_t tile_buffer_size = 128);
+	ScrollingBackground(Background bg = Background::Bg0, uint8_t tile_buffer_size = 128);
 	
 	void set_background(Background bg);
 	void set_enabled(bool enabled);

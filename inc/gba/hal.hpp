@@ -227,6 +227,9 @@ capabilities.
 #define GBA_BG3_HOFF (* reinterpret_cast<volatile uint16_t *>(0x0400001C))
 #define GBA_BG3_VOFF (* reinterpret_cast<volatile uint16_t *>(0x0400001E))
 
+#define GBA_BGTILE_VFLIP 0x400
+#define GBA_BGTILE_HFLIP 0x800
+
 /*
 Sprites
 */

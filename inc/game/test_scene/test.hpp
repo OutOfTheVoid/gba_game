@@ -6,7 +6,6 @@
 #include "gba/bg_dynamic_scene.hpp"
 
 #include "game/scene.hpp"
-#include "assets.hpp"
 
 #include "game/collision/player_walk.hpp"
 #include "game/collision/walk_area.hpp"
@@ -24,6 +23,11 @@ private:
 	void update();
 	
 	Sprite player_sprite;
+	Sprite cat_sprite;
+	
+	Vec2 camera_pos;
+	
+	Vec2 cat_pos;
 	
 	BgDyanmicScene bg_scene;
 	

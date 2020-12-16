@@ -70,6 +70,14 @@ inline static void copy_tile_4bpp(volatile tile_4bpp_t * tile_block, int tile, c
 	memcpy_16v(reinterpret_cast<const void *>(& source), reinterpret_cast<volatile void *>(& tile_block[tile]), 16);
 }
 
+#define TILE_VISUAL_LAYOUT_SWIZZLE(x) ((((x >> 12) & 0x000F) | ((x >> 4) & 0x00F0) | ((x << 4) & 0x0F00) | ((x << 12) & 0xF000)))
+
+inline static void copy_tile_4bpp_visual_layout(volatile tile_4bpp_t * tile_block, int tile, const tile_4bpp_t & source) {
+	for (int i = 0; i < 16; i ++) {
+		reinterpret_cast<volatile uint16_t *>(& tile_block[tile])[i] = TILE_VISUAL_LAYOUT_SWIZZLE(source[i]);
+	}
+}
+
 inline static void copy_tile_8bpp(volatile tile_8bpp_t * tile_block, int tile, const tile_4bpp_t & source) {
 	memcpy_16v(reinterpret_cast<const void *>(& source), reinterpret_cast<volatile void *>(& tile_block[tile]), 32);
 }

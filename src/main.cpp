@@ -41,9 +41,9 @@ extern "C" int main(void) {
 	while (1){
 		vblank_intr_wait();
 		sound_driver_frame();
+		update_event.dispatch();
 		render_event.dispatch();
 		sprite_manager.update();
-		update_event.dispatch();
 		scene_update(scene_events);
 	};
 }
