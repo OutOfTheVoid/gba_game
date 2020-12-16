@@ -4,7 +4,7 @@
 #include "gba/tile_manager.hpp"
 #include "gba/pal_manager.hpp"
 #include "gba/sound_driver.hpp"
-#include "gba/bg_dynamic_scene.hpp"
+#include "gba/scrolling_background.hpp"
 
 extern palette_16_asset_t bridge_palette;
 extern const tile_pack_4bpp_t bridge_tile_pack;

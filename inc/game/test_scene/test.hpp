@@ -3,7 +3,7 @@
 
 #include "gba/sprite_manager.hpp"
 #include "gba/hal.hpp"
-#include "gba/bg_dynamic_scene.hpp"
+#include "gba/scrolling_background.hpp"
 
 #include "game/scene.hpp"
 
@@ -29,7 +29,7 @@ private:
 	
 	Vec2 cat_pos;
 	
-	BgDyanmicScene bg_scene;
+	ScrollingBackground bg;
 	
 	RectangleWalkArea walk_area1;
 	RectangleWalkArea walk_area2;

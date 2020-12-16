@@ -2,6 +2,8 @@ CC := $(DEVKITARM)/bin/arm-none-eabi-gcc
 CXX := $(DEVKITARM)/bin/arm-none-eabi-g++
 LD := $(DEVKITARM)/bin/arm-none-eabi-ld
 OBJCOPY := $(DEVKITARM)/bin/arm-none-eabi-objcopy
+GBAFIX := $(DEVKITPRO)/tools/bin/gbafix
+
 CARGO := cargo
 
 ARCH := -mthumb -mthumb-interwork
@@ -29,7 +31,7 @@ OBJ_SOURCES := \
 	gba/panic.cpp \
 	gba/cpp_rt.cpp \
 	gba/str.cpp \
-	gba/bg_dynamic_scene.cpp \
+	gba/scrolling_background.cpp \
 	\
 	math/fx16.cpp \
 	math/fx16_lut.cpp \
@@ -82,7 +84,7 @@ cdebug: | clean debug
 
 $(TARGET).gba : obj/cart.elf
 	$(OBJCOPY) -v -O binary obj/cart.elf $(TARGET).gba
-	gbafix $(TARGET).gba
+	$(GBAFIX) $(TARGET).gba
 	
 obj/cart.elf: $(addsuffix .o, $(addprefix obj/, $(PNG_2_GBA_OUTPUT_SOURCES))) $(addsuffix .o, $(addprefix obj/, $(OBJ_SOURCES)))
 	$(CC) $(addsuffix .o, $(addprefix obj/, $(PNG_2_GBA_OUTPUT_SOURCES))) $(addsuffix .o, $(addprefix obj/, $(OBJ_SOURCES))) $(LD_FLAGS) -o obj/cart.elf

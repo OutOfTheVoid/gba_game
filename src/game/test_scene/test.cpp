@@ -8,9 +8,9 @@
 
 #include "gba/color.hpp"
 
-#include "game/assets/bridge.hpp"
 #include "game/assets/boy1.hpp"
 #include "game/assets/cat1.hpp"
+#include "game/assets/bridge.hpp"
 
 int boy_frame = 0;
 int boy_walk_step = 0;
@@ -51,7 +51,7 @@ TestScene::TestScene():
 	cat_sprite(),
 	camera_pos(),
 	cat_pos(),
-	bg_scene(),
+	bg(),
 	walk_area1(Vec2(-1, 18), Vec2(308, 84)),
 	walk_area2(Vec2(0, 0), Vec2(0, 0)),
 	walk_area3(Vec2(0, 0), Vec2(0, 0)),
@@ -63,7 +63,7 @@ TestScene::TestScene():
 	test_walk_group(test_walk_areas, 3, 0),
 	player_walk(Vec2(20, 20)) {
 	player_walk.add_area_group(& test_walk_group);
-	bg_scene.add_area(& bridge_area_def, IVec2(-1, -10), true);
+	bg.add_area(& bridge_area_def, IVec2(-1, -10), true);
 }
 
 void TestScene::start(scene_events_t & events) {
@@ -92,7 +92,7 @@ void TestScene::start(scene_events_t & events) {
 	cat_sprite.set_position(80, 80);
 	sprite_manager.add_sprite(& cat_sprite);
 	
-	bg_scene.set_enabled(true);
+	bg.set_enabled(true);
 	walk_direction = WalkDirection::DownStopped;
 	
 	GBA_DISPLAY_CONTROL = GBA_DSPCNT_MODE_0 | GBA_DSPCNT_TILE_MAP_1D | GBA_DSPCNT_ENABLE_SPRITE | GBA_DSPCNT_ENABLE_BG0;
@@ -109,7 +109,7 @@ void TestScene::stop(scene_events_t & events) {
 	tile_manager.unstage_asset(cat1_tile_asset);
 	pal_manager.unstage_asset(cat1_palette_asset);
 	
-	bg_scene.set_enabled(false);
+	bg.set_enabled(false);
 }
 
 void TestScene::update() {
@@ -138,8 +138,8 @@ void TestScene::update() {
 	
 	camera_pos = Vec2(player_pos.x.int_part() - 120, player_pos.y.int_part() - 80);
 	
-	bg_scene.set_camera_position(camera_pos);
-	bg_scene.update();
+	bg.set_camera_position(camera_pos);
+	bg.update();
 	
 	cat_sprite.set_start_tile(cat1_tile_asset.tile_offset + ((cat_frame >> 5) % 3) * 4);
 	cat_sprite.set_position((cat_pos.x - camera_pos.x).int_part(), (cat_pos.y.int_part() - camera_pos.y).int_part());
