@@ -38,7 +38,7 @@ extern "C" int main(void) {
 	
 	set_active_scene(new TestScene());
 	
-	while (1){
+	while (1) {
 		vblank_intr_wait();
 		sound_driver_frame();
 		update_event.dispatch();
